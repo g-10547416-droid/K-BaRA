@@ -14,45 +14,63 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: Arial, sans-serif;
       background: #000;
+      font-family: Arial, sans-serif;
     }
 
-    #ui {
+    a-scene {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    #startScreen {
       position: fixed;
       inset: 0;
-      z-index: 1000;
-      pointer-events: none;
-    }
-
-    .topbar {
-      position: absolute;
-      top: max(16px, env(safe-area-inset-top));
-      left: 16px;
-      right: 16px;
+      z-index: 5000;
       display: flex;
+      align-items: center;
       justify-content: center;
+      padding: 24px;
+      background: linear-gradient(180deg, #fff7d6, #ffe4b5);
     }
 
-    .message {
+    .card {
+      width: min(420px, 100%);
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px 22px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0,0,0,.18);
+    }
+
+    .card h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+    }
+
+    .card p {
+      margin: 0 0 22px;
+      font-size: 18px;
+      line-height: 1.45;
+      color: #333;
+    }
+
+    #message {
+      position: fixed;
+      z-index: 3000;
+      top: max(16px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 90%;
+      padding: 11px 17px;
+      border-radius: 18px;
       background: rgba(0,0,0,.72);
       color: #fff;
-      padding: 12px 18px;
-      border-radius: 18px;
-      font-size: 18px;
+      font-size: 17px;
       text-align: center;
-      max-width: 90%;
-    }
-
-    .bottom {
-      position: absolute;
-      left: 16px;
-      right: 16px;
-      bottom: max(24px, env(safe-area-inset-bottom));
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      pointer-events: auto;
+      pointer-events: none;
     }
 
     button {
@@ -61,189 +79,222 @@
       padding: 14px 22px;
       font-size: 18px;
       font-weight: 700;
-      cursor: pointer;
       background: #fff;
       color: #111;
       box-shadow: 0 4px 18px rgba(0,0,0,.25);
+      cursor: pointer;
     }
 
-    button:disabled {
-      opacity: .5;
-      cursor: default;
+    #startBtn {
+      background: #111;
+      color: #fff;
     }
 
-    #startScreen {
+    #watchBtn {
+      display: none;
+      position: fixed;
+      z-index: 3200;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(28px, env(safe-area-inset-bottom));
+    }
+
+    #videoOverlay {
+      display: none;
       position: fixed;
       inset: 0;
-      z-index: 2000;
-      background: linear-gradient(180deg, #fff7d6, #ffe4b5);
-      display: flex;
+      z-index: 6000;
+      background: #000;
       align-items: center;
       justify-content: center;
-      padding: 24px;
     }
 
-    .startCard {
-      max-width: 420px;
+    #storyVideo {
       width: 100%;
-      text-align: center;
-      background: #fff;
-      padding: 28px 22px;
-      border-radius: 24px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.15);
+      height: 100%;
+      object-fit: contain;
+      background: #000;
     }
 
-    .startCard h1 {
-      margin: 0 0 10px;
-      font-size: 32px;
+    #closeVideo {
+      position: absolute;
+      z-index: 6100;
+      top: max(14px, env(safe-area-inset-top));
+      right: 14px;
+      width: 46px;
+      height: 46px;
+      padding: 0;
+      font-size: 25px;
+      background: rgba(255,255,255,.92);
     }
-
-    .startCard p {
-      margin: 0 0 22px;
-      font-size: 18px;
-      line-height: 1.45;
-      color: #333;
-    }
-
-    #replayBtn { display: none; }
-    #playBtn { display: none; }
   </style>
 </head>
 
 <body>
 
-<div id="startScreen">
-  <div class="startCard">
-    <h1>K-BaRa AR</h1>
-    <p>Terokai cerita K-BaRa dalam bentuk interaktif.</p>
-    <button id="startBtn">Mulakan AR</button>
-  </div>
-</div>
-
-<div id="ui">
-  <div class="topbar">
-    <div id="message" class="message">Halakan kamera pada gambar.</div>
+  <div id="startScreen">
+    <div class="card">
+      <h1>K-BaRa AR</h1>
+      <p>Terokai cerita K-BaRa dalam bentuk interaktif.</p>
+      <button id="startBtn">Mulakan AR</button>
+    </div>
   </div>
 
-  <div class="bottom">
-    <button id="playBtn">▶ Tonton Cerita</button>
-    <button id="replayBtn">↻ Tonton Semula</button>
+  <div id="message" style="display:none;">
+    Halakan kamera pada gambar.
   </div>
-</div>
 
-<a-scene
-  id="arScene"
-  mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiScanning: no; uiLoading: no; uiError: no;"
-  color-space="sRGB"
-  renderer="colorManagement: true, physicallyCorrectLights"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false">
+  <button id="watchBtn">
+    ▶ Tonton Cerita
+  </button>
 
-  <a-assets>
+  <div id="videoOverlay">
+    <button id="closeVideo" aria-label="Tutup">×</button>
+
     <video
       id="storyVideo"
       src="./Hari-Sukan.mp4"
-      preload="auto"
+      controls
       playsinline
       webkit-playsinline
-      crossorigin="anonymous">
+      preload="metadata">
     </video>
-  </a-assets>
+  </div>
 
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+  <a-scene
+    id="arScene"
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      autoStart: false;
+      uiScanning: no;
+      uiLoading: yes;
+      uiError: yes;
+    "
+    embedded
+    color-space="sRGB"
+    renderer="
+      colorManagement: true;
+      antialias: true;
+      alpha: true;
+    "
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
 
-  <a-entity id="target" mindar-image-target="targetIndex: 0">
-    <a-video
-      id="videoPlane"
-      src="#storyVideo"
-      position="0 0 0.01"
-      width="1"
-      height="0.5625"
-      visible="false">
-    </a-video>
-  </a-entity>
-</a-scene>
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled:false">
+    </a-camera>
 
-<script>
-  const startScreen = document.getElementById('startScreen');
-  const startBtn = document.getElementById('startBtn');
-  const playBtn = document.getElementById('playBtn');
-  const replayBtn = document.getElementById('replayBtn');
-  const message = document.getElementById('message');
-  const sceneEl = document.getElementById('arScene');
-  const target = document.getElementById('target');
-  const video = document.getElementById('storyVideo');
-  const videoPlane = document.getElementById('videoPlane');
+    <a-entity
+      id="target"
+      mindar-image-target="targetIndex: 0">
+    </a-entity>
 
-  let targetVisible = false;
+  </a-scene>
 
-  startBtn.addEventListener('click', async () => {
-    startBtn.disabled = true;
-    startBtn.textContent = 'Membuka kamera...';
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
 
-    try {
-      const arSystem = sceneEl.systems['mindar-image-system'];
-      await arSystem.start();
-      startScreen.style.display = 'none';
-      message.textContent = 'Halakan kamera pada gambar.';
-    } catch (err) {
-      console.error(err);
-      startBtn.disabled = false;
-      startBtn.textContent = 'Cuba Lagi';
-      const p = startScreen.querySelector('p');
-      p.textContent = 'Kamera tidak dapat dibuka. Benarkan akses kamera dan cuba lagi.';
-    }
-  });
+      const scene = document.getElementById('arScene');
+      const target = document.getElementById('target');
+      const startScreen = document.getElementById('startScreen');
+      const startBtn = document.getElementById('startBtn');
+      const message = document.getElementById('message');
+      const watchBtn = document.getElementById('watchBtn');
+      const overlay = document.getElementById('videoOverlay');
+      const video = document.getElementById('storyVideo');
+      const closeVideo = document.getElementById('closeVideo');
 
-  target.addEventListener('targetFound', () => {
-    targetVisible = true;
-    message.textContent = 'Gambar dikesan!';
-    videoPlane.setAttribute('visible', 'true');
+      const waitForScene = () => new Promise(resolve => {
+        if (scene.hasLoaded) {
+          resolve();
+        } else {
+          scene.addEventListener('loaded', resolve, { once: true });
+        }
+      });
 
-    if (video.ended) {
-      replayBtn.style.display = 'inline-block';
-      playBtn.style.display = 'none';
-    } else if (video.paused) {
-      playBtn.style.display = 'inline-block';
-      replayBtn.style.display = 'none';
-    }
-  });
+      startBtn.addEventListener('click', async () => {
 
-  target.addEventListener('targetLost', () => {
-    targetVisible = false;
-    if (!video.paused) video.pause();
-    message.textContent = 'Halakan kamera pada gambar.';
-    playBtn.style.display = 'none';
-    replayBtn.style.display = 'none';
-  });
+        startBtn.disabled = true;
+        startBtn.textContent = 'Membuka kamera...';
 
-  playBtn.addEventListener('click', async () => {
-    if (!targetVisible) return;
-    try {
-      video.muted = false;
-      await video.play();
-      playBtn.style.display = 'none';
-      message.textContent = 'Selamat menonton!';
-    } catch (err) {
-      console.error(err);
-      message.textContent = 'Tekan sekali lagi untuk memainkan video.';
-    }
-  });
+        try {
 
-  replayBtn.addEventListener('click', async () => {
-    if (!targetVisible) return;
-    video.currentTime = 0;
-    video.muted = false;
-    await video.play();
-    replayBtn.style.display = 'none';
-    message.textContent = 'Selamat menonton!';
-  });
+          await waitForScene();
 
-  video.addEventListener('ended', () => {
-    message.textContent = 'Cerita tamat.';
-    if (targetVisible) replayBtn.style.display = 'inline-block';
-  });
-</script>
+          const arSystem = scene.systems['mindar-image-system'];
+
+          await arSystem.start();
+
+          startScreen.style.display = 'none';
+
+          message.style.display = 'block';
+          message.textContent = 'Halakan kamera pada gambar.';
+
+        } catch (error) {
+
+          console.error(error);
+
+          startBtn.disabled = false;
+          startBtn.textContent = 'Cuba Lagi';
+
+          startScreen.querySelector('p').textContent =
+            'Kamera tidak dapat dibuka. Benarkan akses kamera pada pelayar dan cuba lagi.';
+        }
+      });
+
+      target.addEventListener('targetFound', () => {
+
+        message.textContent = 'Gambar dikesan!';
+
+        watchBtn.style.display = 'block';
+      });
+
+      target.addEventListener('targetLost', () => {
+
+        if (overlay.style.display !== 'flex') {
+
+          message.textContent = 'Halakan kamera pada gambar.';
+
+          watchBtn.style.display = 'none';
+        }
+      });
+
+      watchBtn.addEventListener('click', async () => {
+
+        overlay.style.display = 'flex';
+
+        watchBtn.style.display = 'none';
+
+        message.style.display = 'none';
+
+        video.currentTime = 0;
+        video.muted = false;
+
+        try {
+
+          await video.play();
+
+        } catch (error) {
+
+          console.error(error);
+
+        }
+      });
+
+      closeVideo.addEventListener('click', () => {
+
+        video.pause();
+
+        overlay.style.display = 'none';
+
+        message.style.display = 'block';
+
+        message.textContent = 'Halakan kamera pada gambar.';
+      });
+
+    });
+  </script>
 
 </body>
 </html>

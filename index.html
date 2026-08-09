@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ms">
 <head>
   <meta charset="UTF-8">
 
@@ -11,49 +11,85 @@
 
   <title>K-BaRa AR</title>
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-
-  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-
+    html,
     body {
       margin: 0;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
+      background: #000;
       font-family: Arial, sans-serif;
     }
 
-    /* Instruction */
+    /*
+      MindAR inserts the phone-camera video
+      directly into the page.
+    */
+    body > video {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+
+      width: 100vw !important;
+      height: 100vh !important;
+
+      object-fit: cover !important;
+
+      z-index: 1 !important;
+
+      display: block !important;
+
+      background: #000 !important;
+    }
+
+    a-scene {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+
+      width: 100vw !important;
+      height: 100vh !important;
+
+      z-index: 2 !important;
+
+      background: transparent !important;
+    }
+
+    .a-canvas {
+      background: transparent !important;
+    }
 
     #instruction {
       position: fixed;
+
       top: 25px;
       left: 50%;
+
       transform: translateX(-50%);
 
-      background: rgba(0,0,0,0.75);
+      z-index: 9999;
+
+      background: rgba(0, 0, 0, 0.72);
+
       color: white;
 
       padding: 12px 22px;
 
-      border-radius: 25px;
+      border-radius: 28px;
 
       font-size: 18px;
 
-      z-index: 9999;
-
       text-align: center;
 
-      white-space: nowrap;
+      width: max-content;
+      max-width: 85%;
     }
 
-
-    /* Watch button */
-
     #watchButton {
-
       display: none;
 
       position: fixed;
@@ -65,11 +101,11 @@
 
       z-index: 9999;
 
-      padding: 15px 28px;
-
       border: none;
 
       border-radius: 30px;
+
+      padding: 15px 28px;
 
       background: white;
 
@@ -79,35 +115,25 @@
 
       font-weight: bold;
 
-      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     }
 
-
-    /* Video screen */
-
     #videoScreen {
-
       display: none;
 
       position: fixed;
 
-      top: 0;
-      left: 0;
-
-      width: 100%;
-      height: 100%;
-
-      background: black;
+      inset: 0;
 
       z-index: 20000;
 
-      justify-content: center;
+      background: black;
+
       align-items: center;
+      justify-content: center;
     }
 
-
     #storyVideo {
-
       width: 100%;
       height: 100%;
 
@@ -116,9 +142,7 @@
       background: black;
     }
 
-
     #closeVideo {
-
       position: absolute;
 
       top: 20px;
@@ -129,194 +153,213 @@
       width: 50px;
       height: 50px;
 
+      padding: 0;
+
       border: none;
 
       border-radius: 50%;
 
       background: white;
 
+      color: black;
+
       font-size: 28px;
 
       font-weight: bold;
     }
-
   </style>
-
 </head>
-
 
 <body>
 
+  <div id="instruction">
+    Halakan kamera pada gambar.
+  </div>
 
-<div id="instruction">
-  Halakan kamera pada gambar.
-</div>
-
-
-<button id="watchButton">
-  ▶ Tonton Cerita
-</button>
-
-
-<div id="videoScreen">
-
-  <button id="closeVideo">
-    ×
+  <button id="watchButton">
+    ▶ Tonton Cerita
   </button>
 
-  <video
-    id="storyVideo"
-    src="./Hari-Sukan.mp4"
-    controls
-    playsinline
-    webkit-playsinline>
-  </video>
+  <div id="videoScreen">
 
-</div>
+    <button id="closeVideo">
+      ×
+    </button>
 
+    <video
+      id="storyVideo"
+      src="./Hari-Sukan.mp4"
+      controls
+      playsinline
+      webkit-playsinline
+      preload="metadata">
+    </video>
 
+  </div>
 
-<a-scene
+  <a-scene
+    mindar-image="
+      imageTargetSrc: ./targets.mind;
+      uiScanning: no;
+      uiLoading: yes;
+      uiError: yes;
+    "
 
-  mindar-image="
-    imageTargetSrc: ./targets.mind;
-    filterMinCF: 0.0001;
-    filterBeta: 0.001;
-  "
+    embedded
 
-  embedded
+    color-space="sRGB"
 
-  color-space="sRGB"
+    renderer="
+      colorManagement: true;
+      alpha: true;
+      antialias: true;
+    "
 
-  renderer="
-    colorManagement: true;
-    physicallyCorrectLights;
-  "
+    vr-mode-ui="enabled: false"
 
-  vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false"
+  >
 
-  device-orientation-permission-ui="enabled: false"
->
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false">
+    </a-camera>
 
+    <a-entity
+      id="imageTarget"
+      mindar-image-target="targetIndex: 0">
+    </a-entity>
 
-  <a-camera
+  </a-scene>
 
-    position="0 0 0"
 
-    look-controls="enabled: false">
+  <script>
+    const target =
+      document.querySelector("#imageTarget");
 
-  </a-camera>
+    const instruction =
+      document.querySelector("#instruction");
 
+    const watchButton =
+      document.querySelector("#watchButton");
 
+    const videoScreen =
+      document.querySelector("#videoScreen");
 
-  <a-entity
+    const storyVideo =
+      document.querySelector("#storyVideo");
 
-    id="imageTarget"
+    const closeVideo =
+      document.querySelector("#closeVideo");
 
-    mindar-image-target="targetIndex: 0">
 
-  </a-entity>
+    target.addEventListener("targetFound", () => {
 
+      instruction.innerHTML =
+        "Gambar dikesan!";
 
-</a-scene>
+      watchButton.style.display =
+        "block";
 
+    });
 
 
-<script>
+    target.addEventListener("targetLost", () => {
 
-const target =
-document.querySelector("#imageTarget");
+      if (videoScreen.style.display !== "flex") {
 
-const instruction =
-document.querySelector("#instruction");
+        instruction.innerHTML =
+          "Halakan kamera pada gambar.";
 
-const watchButton =
-document.querySelector("#watchButton");
+        watchButton.style.display =
+          "none";
+      }
 
-const videoScreen =
-document.querySelector("#videoScreen");
+    });
 
-const video =
-document.querySelector("#storyVideo");
 
-const closeVideo =
-document.querySelector("#closeVideo");
+    watchButton.addEventListener("click", async () => {
 
+      videoScreen.style.display =
+        "flex";
 
+      instruction.style.display =
+        "none";
 
-/* IMAGE FOUND */
+      watchButton.style.display =
+        "none";
 
-target.addEventListener("targetFound", () => {
+      storyVideo.currentTime = 0;
 
-  instruction.innerHTML =
-  "Gambar dikesan!";
+      try {
 
-  watchButton.style.display =
-  "block";
+        await storyVideo.play();
 
-});
+      } catch (error) {
 
+        console.log(error);
 
+      }
 
-/* IMAGE LOST */
+    });
 
-target.addEventListener("targetLost", () => {
 
-  if(videoScreen.style.display !== "flex") {
+    closeVideo.addEventListener("click", () => {
 
-    instruction.innerHTML =
-    "Halakan kamera pada gambar.";
+      storyVideo.pause();
 
-    watchButton.style.display =
-    "none";
+      videoScreen.style.display =
+        "none";
 
-  }
+      instruction.style.display =
+        "block";
 
-});
+      instruction.innerHTML =
+        "Halakan kamera pada gambar.";
 
+    });
 
 
-/* PLAY STORY */
+    /*
+      Extra safeguard:
+      after MindAR creates the camera video,
+      force it to stay visible.
+    */
 
-watchButton.addEventListener("click", () => {
+    const observer =
+      new MutationObserver(() => {
 
-  videoScreen.style.display =
-  "flex";
+        const videos =
+          document.querySelectorAll("body > video");
 
-  instruction.style.display =
-  "none";
+        videos.forEach(video => {
 
-  watchButton.style.display =
-  "none";
+          if (video.id !== "storyVideo") {
 
-  video.currentTime = 0;
+            video.style.display = "block";
+            video.style.position = "fixed";
+            video.style.top = "0";
+            video.style.left = "0";
+            video.style.width = "100vw";
+            video.style.height = "100vh";
+            video.style.objectFit = "cover";
+            video.style.zIndex = "1";
 
-  video.play();
+          }
 
-});
+        });
 
+      });
 
 
-/* CLOSE VIDEO */
+    observer.observe(
+      document.body,
+      {
+        childList: true
+      }
+    );
 
-closeVideo.addEventListener("click", () => {
-
-  video.pause();
-
-  videoScreen.style.display =
-  "none";
-
-  instruction.style.display =
-  "block";
-
-  instruction.innerHTML =
-  "Halakan kamera pada gambar.";
-
-});
-
-
-</script>
-
+  </script>
 
 </body>
 </html>
